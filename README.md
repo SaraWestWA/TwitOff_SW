@@ -1,2 +1,2 @@
 # TwitOff_SW
-A web application for comparing Twitter users
+A delightful web application for comparing and predicting Tweet auhorship.
