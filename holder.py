@@ -1,30 +1,33 @@
-# export FLASK_APP=twitoff:APP
+from flask_sqlalchemy import SQLAlchemy
 
 
-from flask import Flask
-from .db_model import DB, User
+DB = SQLAlchemy()
 
-def create_app():
-    '''Create and configure an instance of the Flask application.'''
-    app = Flask(__name__)
 
-    app.config[SQALCHEMY_DATABASE_URI] = 'sqlite:///C:\\Users\\whats\\Repos\\TwitOff_SW\\twitoff.sqlite3' # for absolute path
-    app.config[SQALCHEMY_TRACK_MODIFICATIONS] = False
-    DB.init_app(app) #connect Flask app to SQAlchemy DB
+class User(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    username = DB.Column(DB.String(80), unique=True, nullable=False)
+    followers = DB.Column(DB.String(120), unique=True, nullable=False)
 
-    @app.route('/')
-    def root():
-        return 'Welcome to TwitOff!'
-    
-    # @app.route('<username>/,followers>')
-    # def add_users(username, followers):
-    #     user = User(username=username, followers=followers)
-    #     DB.session.add(user)
-    #     DB.session.commit()
+    def __repr__(self):
+        return '<User %r>' % self.username
 
-    #     return f'{username} has been added to the TwitOff DB!'
 
-    return app
+class Tweet(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    tweet = DB.Column(DB.String(280), unique=True, nullable=False)
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=False)
+    user = DB.relationship('User', backref=DB.backref('tweet', lazy=True))
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+    def __repr__(self):
+        return '<Tweet %r>' % self.tweet
+
+
+# To create the database:
+# from twitoff.db_model import DB, User, Tweet
+# DB.create_all()
+
+# Tweet(tweet='Hoomon not shares food. Bad Hoomon!', user=User.query.filter_by(username='JWolf').first())
+# User.query.all()
+# DB.session.add(tweet2)
+# DB.session.commit()
