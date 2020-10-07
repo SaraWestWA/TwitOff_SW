@@ -1,43 +1,72 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 from .db_model import DB, User, Tweet
+from .twitter import add_user_tweepy
+from .predict import predict_user
 
-# DB=SQLAlchemy()
 load_dotenv()
 
 def create_app():
     '''Create and configure an instance of the Flask application.'''
-    app = Flask(__name__, instance_relative_config=False)
+    app = Flask(__name__)
     app.config.update(
         SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI'),
         SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('TRACK_MODS')
-    )
-
+        )
     DB.init_app(app) #connect Flask app to SQAlchemy DB
 
     @app.route('/')
     def root():
         return render_template('base.html', title='Home',users=User.query.all())
-        # return 'Twitoff!'
 
-    @app.route('/<username>/<followers>')
-    def add_user(username, followers):
-        user = User(username=username, followers=followers)
-        DB.session.add(user)
-        DB.session.commit()
+    @app.route('/user', methods=['POST'])
+    @app.route('/user/<name>', methods=['GET'])
+    def add_or_update_user(name='no user entered', message=''):
+        name =  name or request.values['user_name']
+            
+        if name == 'no user entered':
+            message = 'Please select or enter a user name.'
+            tweets = []
+        else:
+            try:
+                if request.method == 'POST':
+                    add_user_tweepy(name)
+                    message = 'User {} successfully added!'.format(name)
+                    tweets = User.query.filter(User.username == name).one().tweet
+            except Exception as e:
+                print(f'Error adding {name}: {e}')
+                tweets = []
 
-        return f'{username} has been added to the DB!'
+        return render_template('user.html', title=name, tweets=tweets, message=message)
 
-    # @app.route('/tweet/<user_id>/<tweet>')
-    # def add_tweet(user_id, tweet):
-    #     tweet = Tweet(user_id=user_id, tweet=tweet)
-    #     DB.session.add(tweet)
-    #     DB.session.commit()
+    @app.route('/compare', methods=['POST'])
+    def compare(message =''):
+        user1 = request.values['user1']
+        user2 = request.values['user2']
+        tweet_text = request.values['tweet_text']
+    
+        if user1 == user2:
+            message = 'Two different users must be provided to compare!'
+        else:
+            prediction = predict_user(user1, user2, tweet_text)
+            
+            message = f'''{tweet_text}' is more likely to be said by {user1 if prediction else user2}
+                        than {user2 if prediction else user1}'''
 
-    #     return f'{user} tweeted {tweet}.'
+        return render_template('predict.html', title='Prediction', message=message) 
+
+
+    @app.route('/reset')
+    def reset():
+        DB.drop_all()
+        DB.create_all()
 
     return app
+
+    
 # if __name__ == "__main__":
 #     app.run(debug=True)
+
+
