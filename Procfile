@@ -1,0 +1,1 @@
+web: gunicorn twitoff:APP -2 120

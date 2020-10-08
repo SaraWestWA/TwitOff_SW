@@ -75,3 +75,6 @@ def predict_user(user1, user2, tweet_text):
       <div class="menu">
         <a href="/update" class="button warning">Update Tweets</a>
       </div>
+
+
+      October 7, 11:12 PM on video: begin working with heroku
