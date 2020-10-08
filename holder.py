@@ -69,3 +69,9 @@ def predict_user(user1, user2, tweet_text):
     log_reg = LogisticRegression(max_iter=1000).fit(embeddings, labels)
     tweet_embedding = vectorize_tweet(nlp, tweet_text)
     return log_reg.predict([tweet_embedding])[0]
+
+          <input id="bmenub" type="checkbox" class="show">
+      <label for="bmenub" class="burger pseudo button">Menu</label>
+      <div class="menu">
+        <a href="/update" class="button warning">Update Tweets</a>
+      </div>

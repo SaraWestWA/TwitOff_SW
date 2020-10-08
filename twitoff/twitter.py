@@ -22,6 +22,7 @@ def add_user_tweepy(username):
     try:
         # Get user info from tweepy
         twitter_user = TWITTER.get_user(username)
+        
 
         # Add to User table (or check if existing)
         db_user = (User.query.get(twitter_user.id) or
@@ -113,3 +114,8 @@ def add_user_history(username):
         # If no errors happend than commit the records
         DB.session.commit()
         print('Successfully saved tweets to DB!')
+
+def update_all_users():
+    ''' this function updates the veiw for all users'''
+    for user in User.query.all():
+        add_user_tweepy(user.username)

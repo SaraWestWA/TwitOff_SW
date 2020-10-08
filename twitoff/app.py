@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 from .db_model import DB, User, Tweet
-from .twitter import add_user_tweepy
+from .twitter import add_user_tweepy, update_all_users
 from .predict import predict_user
 
 load_dotenv()
@@ -23,21 +23,25 @@ def create_app():
 
     @app.route('/user', methods=['POST'])
     @app.route('/user/<name>', methods=['GET'])
-    def add_or_update_user(name='no user entered', message=''):
-        name =  name or request.values['user_name']
-            
-        if name == 'no user entered':
-            message = 'Please select or enter a user name.'
-            tweets = []
-        else:
-            try:
-                if request.method == 'POST':
+    def add_or_update_user(name=None, message=''):
+        try:
+            if request.method == 'POST':
+                name = request.values['user_name']
+                print('Name: ',name)
+                if name == '':
+                    message = 'Please select or enter a user name.'
+                    tweets = []
+                else:
                     add_user_tweepy(name)
-                    message = 'User {} successfully added!'.format(name)
+                    message = 'TWeets by {}!'.format(name)
                     tweets = User.query.filter(User.username == name).one().tweet
-            except Exception as e:
-                print(f'Error adding {name}: {e}')
-                tweets = []
+            else:
+                tweets = User.query.filter(User.username == name).one().tweet
+        except Exception as e:
+            message = f'''Error adding {name}. Is the name on the user list in any form?
+                        Just click it.
+                        If not, user may not exist, check spelling and try again.'''
+            tweets = []
 
         return render_template('user.html', title=name, tweets=tweets, message=message)
 
@@ -52,7 +56,7 @@ def create_app():
         else:
             prediction = predict_user(user1, user2, tweet_text)
             
-            message = f'''{tweet_text}' is more likely to be said by {user1 if prediction else user2}
+            message = f''' "{tweet_text} " is more likely to be said by {user1 if prediction else user2}
                         than {user2 if prediction else user1}'''
 
         return render_template('predict.html', title='Prediction', message=message) 
@@ -62,6 +66,11 @@ def create_app():
     def reset():
         DB.drop_all()
         DB.create_all()
+
+    @app.route('/update', methods=['GET'])
+    def update():
+        update_all_users()
+        return render_template('base.html', title='Tweets updated!', users=User.query.all()) 
 
     return app
 
