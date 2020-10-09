@@ -5,6 +5,7 @@ import os
 from .db_model import DB, User, Tweet
 from .twitter import add_user_tweepy, update_all_users
 from .predict import predict_user
+import traceback
 
 load_dotenv()
 
@@ -39,6 +40,7 @@ def create_app():
             else:
                 tweets = User.query.filter(User.username == name).one().tweet
         except Exception as e:
+            traceback.print_exc()
             message = f'''Error adding {name}. Is the name on the user list in any form?
                         Just click it.
                         If not, user may not exist, check spelling and try again.'''
