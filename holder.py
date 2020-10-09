@@ -78,3 +78,4 @@ def predict_user(user1, user2, tweet_text):
 
 
       October 7, 11:12 PM on video: begin working with heroku
+      11:40 or so, where I got lost last
