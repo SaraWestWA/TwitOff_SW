@@ -13,6 +13,7 @@ def create_app():
     app = Flask(__name__)
     app.config.update(
         SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL'),
+        # SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI'),
         SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('TRACK_MODS')
         )
     DB.init_app(app) #connect Flask app to SQAlchemy DB
@@ -33,7 +34,7 @@ def create_app():
                     tweets = []
                 else:
                     add_user_tweepy(name)
-                    message = 'TWeets by {}!'.format(name)
+                    message = 'Tweets by {}!'.format(name)
                     tweets = User.query.filter(User.username == name).one().tweet
             else:
                 tweets = User.query.filter(User.username == name).one().tweet
@@ -66,12 +67,12 @@ def create_app():
     def reset():
         DB.drop_all()
         DB.create_all()
-        return render_template('base.html', title='Reset Database!', users=User.query.all())
+        return render_template('base.html', title='Database has been reset!', users=User.query.all())
 
     @app.route('/update', methods=['GET'])
     def update():
         update_all_users()
-        return render_template('base.html', title='Tweets updated!', users=User.query.all()) 
+        return render_template('base.html', title='All tweets updated!', users=User.query.all()) 
 
     return app
 
