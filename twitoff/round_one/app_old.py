@@ -1,4 +1,4 @@
-"""
+'''"""'''
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -25,7 +25,8 @@ def create_app():
 
     @app.route('/user', methods=['POST'])
     @app.route('/user/<name>', methods=['GET'])
-    def add_or_update_user(name=None, message=''):
+    def user(name=None, message=''):
+		name = name or request.values['username']
         try:
             if request.method == 'POST':
                 name = request.values['user_name']
@@ -38,7 +39,7 @@ def create_app():
                     message = 'Tweets by {}!'.format(name)
                     tweets = User.query.filter(User.username == name).one().tweet
             else:
-                tweets = User.query.filter(User.username == name).one().tweet
+                tweets = User.query.filter(User.name == name).one().tweet
         except Exception as e:
             traceback.print_exc()
             message = f'''Error adding {name}. Is the name on the user list in any form?
@@ -48,21 +49,21 @@ def create_app():
 
         return render_template('user.html', title=name, tweets=tweets, message=message)
 
-    @app.route('/compare', methods=['POST'])
-    def compare(message =''):
-        user1 = request.values['user1']
-        user2 = request.values['user2']
-        tweet_text = request.values['tweet_text']
+    # @app.route('/compare', methods=['POST'])
+    # def compare(message =''):
+    #     user1 = request.values['user1']
+    #     user2 = request.values['user2']
+    #     tweet_text = request.values['tweet_text']
     
-        if user1 == user2:
-            message = 'Two different users must be provided to compare!'
-        else:
-            prediction = predict_user(user1, user2, tweet_text)
+    #     if user1 == user2:
+    #         message = 'Two different users must be provided to compare!'
+    #     else:
+    #         prediction = predict_user(user1, user2, tweet_text)
             
-            message = f''' "{tweet_text} " is more likely to be said by {user1 if prediction else user2}
-                        than {user2 if prediction else user1}'''
+    #         message = f''' "{tweet_text} " is more likely to be said by {user1 if prediction else user2}
+    #                     than {user2 if prediction else user1}'''
 
-        return render_template('predict.html', title='Prediction', message=message) 
+    #     return render_template('predict.html', title='Prediction', message=message) 
 
 
     @app.route('/reset')
