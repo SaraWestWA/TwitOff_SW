@@ -1,18 +1,18 @@
 import spacy
 import tweepy
-from decouple import config
+from os import getenv
 from .models import DB, User, Tweet
 
-TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_API_KEY')
-TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_API_SECRET')
-TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN')
-TWITTER_ACCESS_TOKEN_SECRET = config('TWITTER_ACCESS_TOKEN_SECRET')
+TWITTER_CONSUMER_KEY = getenv('TWITTER_CONSUMER_API_KEY')
+TWITTER_CONSUMER_SECRET = getenv('TWITTER_CONSUMER_API_SECRET')
+TWITTER_ACCESS_TOKEN = getenv('TWITTER_ACCESS_TOKEN')
+TWITTER_ACCESS_TOKEN_SECRET = getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 TWITTER_AUTH = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
 TWITTER_AUTH.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 TWITTER = tweepy.API(TWITTER_AUTH)
 
-spacy_model_name = "en_core_web_lg"
+spacy_model_name = "en_core_web_sm"
 if not spacy.util.is_package(spacy_model_name):
 	spacy.cli.download(spacy_model_name)
 
@@ -37,7 +37,7 @@ def add_or_update_user(name):
             db_user.newest_tweet_id = tweets[0].id # Add newest_tweet_id to the User table
 
         for tweet in tweets:
-            embedding = list(nlp(tweet.text).vector)
+            embedding = vectorize_tweet(tweet.text)
             db_tweet = Tweet(id=tweet.id, text=tweet.text, embedding=embedding)
             db_user.tweets.append(db_tweet)
         
@@ -45,5 +45,10 @@ def add_or_update_user(name):
         DB.session.commit()
 
     except Exception as e:
-        print('Error processing {}: {}'.format(username, e))
+        print('Error processing {}: {}'.format(name, e))
         # raise e
+
+def update_all_users():
+    ''' this function updates all tweets for existing users'''
+    for user in User.query.all():
+        add_or_update_user(user.name)

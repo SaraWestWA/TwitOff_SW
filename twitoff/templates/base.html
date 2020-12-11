@@ -6,25 +6,20 @@
   </head>
   <body>
     <nav>
-      <a href="/" class="brand"><span>TwitOff!</span></a>
-       <!-- responsive-->
-       <input id="bmenub" type="checkbox" class="show">
-       <label for="bmenub" class="burger pseudo button">Menu</label>
-       <div class="menu">
-           <a href="/" class="button error">Add Again</a>
-       </div>
+        <a href="/" class="brand"><h1>TwitOff!</h1></a>
         <!-- responsive-->
         <input id="bmenub" type="checkbox" class="show">
         <label for="bmenub" class="burger pseudo button">Menu</label>
         <div class="menu">
+            <a href="/update" class="button warning">Update Tweets</a>
             <a href="/reset" class="button error">Reset Database</a>
         </div>
-      <!-- responsive-->
-      <input id="bmenub" type="checkbox" class="show">
-      <label for="bmenub" class="burger pseudo button">Menu</label>
-      <div class="menu">
-        <a href="/update" class="button warning">Update Tweets</a>
-      </div>
+        <!-- responsive-->
+        <input id="bmenub" type="checkbox" class="show">
+        <label for="bmenub" class="burger pseudo button">Menu</label>
+        <div class="menu">
+            <a href="/" class="button primary">Menu</a>
+        </div>
     </nav>
     <article class="flex two" style="padding: 3em 1em;">
       {% block content %}

@@ -4,7 +4,7 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from .models import DB, User, Tweet
 from .predict import predict_user
-from .twitter import add_or_update_user
+from .twitter import add_or_update_user, update_all_users
 
 def create_app():
     '''Create and configure an instance of the Flask application.'''
@@ -40,14 +40,13 @@ def create_app():
             else:
                 tweets = User.query.filter(User.name == name).one().tweets
         except Exception as e:
-            # message = f'''Error adding {name}. Is the name on the user list in any form?
-            #             Just click it.
-            #             If not, user may not exist, check spelling and try again.'''
-            message = f'{e}'
+            message = f'''Error adding {name}. Is the name on the user list in any form?
+                        Just click it.
+                        If not, user may not exist, check spelling and try again.'''
+            # message = f'{e}'
             tweets = []
 
         return render_template('user.html', title=name, tweets=tweets, message=message)
-
 
     @app.route('/compare', methods=['POST'])
     def compare(message =''):
@@ -60,10 +59,15 @@ def create_app():
         else:
             prediction = predict_user(user1, user2, tweet_text)
             
-            message = f''' "{tweet_text} " is more likely to be said by {user1 if prediction else user2}
-                        than {user2 if prediction else user1}'''
+            message = f''' "{tweet_text}" is more likely to be said by "{user1 if prediction else user2}"
+                        than "{user2 if prediction else user1}""'''
 
-        return render_template('predict.html', title='Prediction', message=message) 
+        return render_template('predict.html', title='Prediction', message=message)
+
+    @app.route('/update', methods=['GET'])
+    def update():
+        update_all_users()
+        return render_template('base.html', title='All tweets updated!', users=User.query.all()) 
 
     @app.route('/reset')
     def reset():
@@ -77,25 +81,3 @@ def create_app():
     
 # # if __name__ == "__main__":
 # #     app.run(debug=True)
-
-"""
-
-
-
-    @app.route('/users', strict_slashes=False, methods=['POST']) # strict_slashes required by tweepy quirke
-    @app.route('/users/'<name>, methods=['GET'])
-    def users(name=None, message=''):
-        name = name OR request.value('user_name')
-        print(name)
-        pass
-        # users = User.query.all()
-        # return render_template('base.html', title='Users', users=users) 
-
-    @app.route('/reset')
-    def reset():
-        DB.drop_all()
-        DB.create_all()
-        return render_template('base.html', title='DB Reset', users=[])
-
-    return app
-    """

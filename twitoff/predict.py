@@ -32,12 +32,8 @@ def predict_user(user1, user2, tweet_text):
     #Train model and convert input text into embeddings
     log_reg = LogisticRegression(max_iter=1000).fit(embeddings, labels)
     tweet_embedding = nlp (tweet_text).vector
-    # knnc = KNeighborsClassifier().fit(embeddings, labels)
-    # nlp = spacy.load('en_core_web_lg')
-    # tweet_embedding = nlp (tweet_text).vector
-    # pred = knnc.predict(tweet_embedding)
-
-    return log_reg.predict([tweet_embedding])[0]
+    prediction = log_reg.predict([tweet_embedding])[0]
+    return prediction
     # return pred
 
 
