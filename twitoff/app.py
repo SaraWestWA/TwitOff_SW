@@ -10,7 +10,7 @@ def create_app():
     '''Create and configure an instance of the Flask application.'''
     app = Flask(__name__)
     app.config.update(
-        SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI_3'),
+        SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL'),
         SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('TRACK_MODS')
         )
     DB.init_app(app) #connect Flask app to SQAlchemy DB
