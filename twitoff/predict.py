@@ -1,11 +1,8 @@
 ''' Prediction of User authorship based on tweet embeddings'''
 import numpy as np
-import spacy
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from .models import User
-from .twitter import nlp 
-
+from .twitter import nlp
 
 def predict_user(user1, user2, tweet_text):
     ''' Determine an return which user is more likely to say a given tweet.
@@ -35,6 +32,3 @@ def predict_user(user1, user2, tweet_text):
     prediction = log_reg.predict([tweet_embedding])[0]
     return prediction
     # return pred
-
-
-
